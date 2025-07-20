@@ -1,4 +1,5 @@
-import { Button } from "@/components/ui/button";
+
+import { LoginForm } from "@/components/ui/login-form";
 
 
 
@@ -7,8 +8,7 @@ const Home = () => {
 
     return (
         <div>
-            <div className="text-blue-400 text-5xl"> The Component is Start Home </div>
-            <Button variant="outline">Button</Button>
+            <LoginForm />
         </div>
     );
 };
