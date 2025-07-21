@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect, type ReactNode, useRef } from "react";
 import { Outlet } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,10 +12,8 @@ import {
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -173,7 +169,6 @@ const DashboardLayout = () => {
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col min-h-screen">
-
         {/* Fixed header */}
         <header className="sticky top-0 z-20 bg-white dark:bg-gray-900 border-b dark:border-gray-800 p-4">
           <div className="flex items-center justify-between">
@@ -188,14 +183,8 @@ const DashboardLayout = () => {
 
               <Breadcrumb>
                 <BreadcrumbList>
-                  <BreadcrumbItem className="hidden md:block">
-                    <BreadcrumbLink href="#">
-                      Building Your Application
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator className="hidden md:block" />
                   <BreadcrumbItem>
-                    <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                    <BreadcrumbPage>Business Center</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
@@ -217,10 +206,10 @@ const DashboardLayout = () => {
         {/* Main content */}
         <motion.main
           animate={{
-            marginLeft: isMobile ? 0 : sidebarOpen ? 250 : 80,
+            marginLeft: isMobile ? 0 : sidebarOpen ? 0 : 0,
           }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="flex-1 p-4"
+          className="flex-1 pl-0 pr-4 py-4"
         >
           <Outlet />
         </motion.main>
