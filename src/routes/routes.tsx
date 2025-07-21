@@ -3,7 +3,7 @@ import Error from "../pages/Error";
 import HomeRoot from "./HomeRoot";
 import Home from "../pages/homePage/Home";
 import DashboardHome from "@/dashboard/DashboardHome";
-import { DashboardLayout } from "@/components/dashboardComponents/DashboardLayout";
+import DashboardLayout from "./DashboardLayout";
 
 const router = createBrowserRouter([
   {
@@ -12,9 +12,14 @@ const router = createBrowserRouter([
     element: <HomeRoot />,
     children: [
       {
-        path: "/",
+        // path: "/",
+        index: true,
         element: <Home />,
       },
+      // {
+      //   path: "/dashboard", 
+      //   element: <DashboardHome />,
+      // },
       //   {
       //     path: "/dashboard",
       //     element:  <SidebarProvider> <DashboardHome /></SidebarProvider>,
@@ -31,7 +36,8 @@ const router = createBrowserRouter([
     element: <DashboardLayout />,
     children: [
       {
-        path: "/", 
+        // path: "home", 
+        index: true,
         element: <DashboardHome />,
       },
     ]

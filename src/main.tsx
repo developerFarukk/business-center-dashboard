@@ -5,9 +5,10 @@ import { RouterProvider } from 'react-router-dom'
 import router from './routes/routes.tsx'
 import { ThemeProvider } from './components/ui/theme-provider.tsx'
 
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {/* <App /> */}
+
     <ThemeProvider  storageKey="vite-ui-theme">
     <RouterProvider router={router} />
     </ThemeProvider>
