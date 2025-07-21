@@ -12,18 +12,11 @@ const router = createBrowserRouter([
     element: <HomeRoot />,
     children: [
       {
-        // path: "/",
+
         index: true,
         element: <Home />,
       },
-      // {
-      //   path: "/dashboard", 
-      //   element: <DashboardHome />,
-      // },
-      //   {
-      //     path: "/dashboard",
-      //     element:  <SidebarProvider> <DashboardHome /></SidebarProvider>,
-      //   },
+
     ],
   },
 //   {
