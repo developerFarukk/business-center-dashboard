@@ -1,5 +1,7 @@
+
+
 import { useState, useEffect, type ReactNode, useRef } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiMenu,
@@ -7,7 +9,9 @@ import {
   FiHome,
   FiUsers,
   FiSettings,
-  FiGrid,
+  FiDatabase,
+  FiServer,
+  FiChevronRight,
 } from "react-icons/fi";
 import {
   Breadcrumb,
@@ -22,11 +26,24 @@ interface NavItemProps {
   text: string;
   active?: boolean;
   visible?: boolean;
+  to: string;
+}
+
+interface SubNavItemProps {
+  text: string;
+  to: string;
+  visible?: boolean;
 }
 
 const DashboardLayout = () => {
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
+    clients: false,
+    bulk: false,
+    devices: false,
+  });
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -65,6 +82,18 @@ const DashboardLayout = () => {
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
+  const toggleSubItems = (itemKey: string) => {
+    setExpandedItems((prev) => ({
+      ...prev,
+      [itemKey]: !prev[itemKey],
+    }));
+  };
+
+  // Check if subitem is active
+  const isSubItemActive = (path: string) => {
+    return location.pathname === path;
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Sidebar Overlay */}
@@ -85,45 +114,219 @@ const DashboardLayout = () => {
       <AnimatePresence mode="wait">
         <motion.aside
           ref={sidebarRef}
-          initial={isMobile ? { x: -250 } : { width: 250 }}
+          initial={isMobile ? { x: -300 } : { width: 300 }}
           animate={
             isMobile
               ? sidebarOpen
                 ? { x: 0 }
-                : { x: -250 }
+                : { x: -300 }
               : sidebarOpen
-              ? { width: 250 }
+              ? { width: 300 }
               : { width: 80 }
           }
-          exit={isMobile ? { x: -250 } : { width: 80 }}
+          exit={isMobile ? { x: -300 } : { width: 80 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className={`fixed md:relative z-30 h-screen bg-white dark:bg-gray-800 shadow-md ${
-            isMobile ? "w-64" : ""
+            isMobile ? "w-72" : ""
           }`}
         >
           <div className="flex flex-col h-full p-4">
             {/* Navigation */}
-            <nav className="flex-1 space-y-2">
+            <nav className="flex-1 space-y-1">
               <NavItem
                 icon={<FiHome size={20} />}
                 text="Dashboard"
-                active={true}
+                active={location.pathname === "/dashboard"}
                 visible={sidebarOpen || isMobile}
+                to="/dashboard"
               />
-              <NavItem
-                icon={<FiGrid size={20} />}
-                text="Projects"
-                visible={sidebarOpen || isMobile}
-              />
-              <NavItem
-                icon={<FiUsers size={20} />}
-                text="Users"
-                visible={sidebarOpen || isMobile}
-              />
+              
+              {/* Client Management */}
+              <div className="space-y-1">
+                <button
+                  onClick={() => toggleSubItems("clients")}
+                  className={`w-full flex items-center p-3 rounded-lg transition-all duration-300 ${
+                    expandedItems.clients
+                      ? "bg-blue-100 text-blue-600 dark:bg-gray-700 dark:text-white"
+                      : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  <FiUsers size={20} className="flex-shrink-0" />
+                  {(sidebarOpen || isMobile) && (
+                    <>
+                      <span className="ml-3 flex-1 text-left">Client Management</span>
+                      <motion.div
+                        animate={{
+                          rotate: expandedItems.clients ? 90 : 0,
+                        }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <FiChevronRight size={16} />
+                      </motion.div>
+                    </>
+                  )}
+                </button>
+
+                <AnimatePresence>
+                  {expandedItems.clients && (sidebarOpen || isMobile) && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="ml-8 space-y-1">
+                        <SubNavItem
+                          text="Add Client"
+                          to="/clients/add"
+                          visible={sidebarOpen || isMobile}
+                          active={isSubItemActive("/clients/add")}
+                        />
+                        <SubNavItem
+                          text="Client List"
+                          to="/clients"
+                          visible={sidebarOpen || isMobile}
+                          active={isSubItemActive("/clients")}
+                        />
+                        <SubNavItem
+                          text="Client Reports"
+                          to="/clients/reports"
+                          visible={sidebarOpen || isMobile}
+                          active={isSubItemActive("/clients/reports")}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Bulk Management */}
+              <div className="space-y-1">
+                <button
+                  onClick={() => toggleSubItems("bulk")}
+                  className={`w-full flex items-center p-3 rounded-lg transition-all duration-300 ${
+                    expandedItems.bulk
+                      ? "bg-blue-100 text-blue-600 dark:bg-gray-700 dark:text-white"
+                      : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  <FiDatabase size={20} className="flex-shrink-0" />
+                  {(sidebarOpen || isMobile) && (
+                    <>
+                      <span className="ml-3 flex-1 text-left">Bulk Management</span>
+                      <motion.div
+                        animate={{
+                          rotate: expandedItems.bulk ? 90 : 0,
+                        }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <FiChevronRight size={16} />
+                      </motion.div>
+                    </>
+                  )}
+                </button>
+
+                <AnimatePresence>
+                  {expandedItems.bulk && (sidebarOpen || isMobile) && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="ml-8 space-y-1">
+                        <SubNavItem
+                          text="Create Bulk"
+                          to="/bulk/create"
+                          visible={sidebarOpen || isMobile}
+                          active={isSubItemActive("/bulk/create")}
+                        />
+                        <SubNavItem
+                          text="Bulk History"
+                          to="/bulk/history"
+                          visible={sidebarOpen || isMobile}
+                          active={isSubItemActive("/bulk/history")}
+                        />
+                        <SubNavItem
+                          text="Bulk Analytics"
+                          to="/bulk/analytics"
+                          visible={sidebarOpen || isMobile}
+                          active={isSubItemActive("/bulk/analytics")}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Device Management */}
+              <div className="space-y-1">
+                <button
+                  onClick={() => toggleSubItems("devices")}
+                  className={`w-full flex items-center p-3 rounded-lg transition-all duration-300 ${
+                    expandedItems.devices
+                      ? "bg-blue-100 text-blue-600 dark:bg-gray-700 dark:text-white"
+                      : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  <FiServer size={20} className="flex-shrink-0" />
+                  {(sidebarOpen || isMobile) && (
+                    <>
+                      <span className="ml-3 flex-1 text-left">Device Management</span>
+                      <motion.div
+                        animate={{
+                          rotate: expandedItems.devices ? 90 : 0,
+                        }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <FiChevronRight size={16} />
+                      </motion.div>
+                    </>
+                  )}
+                </button>
+
+                <AnimatePresence>
+                  {expandedItems.devices && (sidebarOpen || isMobile) && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="ml-8 space-y-1">
+                        <SubNavItem
+                          text="Add Device"
+                          to="/devices/add"
+                          visible={sidebarOpen || isMobile}
+                          active={isSubItemActive("/devices/add")}
+                        />
+                        <SubNavItem
+                          text="Device List"
+                          to="/devices"
+                          visible={sidebarOpen || isMobile}
+                          active={isSubItemActive("/devices")}
+                        />
+                        <SubNavItem
+                          text="Device Status"
+                          to="/devices/status"
+                          visible={sidebarOpen || isMobile}
+                          active={isSubItemActive("/devices/status")}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               <NavItem
                 icon={<FiSettings size={20} />}
                 text="Settings"
+                active={location.pathname === "/settings"}
                 visible={sidebarOpen || isMobile}
+                to="/settings"
               />
             </nav>
 
@@ -184,7 +387,9 @@ const DashboardLayout = () => {
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    <BreadcrumbPage>Business Center</BreadcrumbPage>
+                    <BreadcrumbPage className="text-2xl font-bold">
+                      SMS Gateway
+                    </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
@@ -219,11 +424,11 @@ const DashboardLayout = () => {
 };
 
 // NavItem component
-const NavItem = ({ icon, text, active = false, visible }: NavItemProps) => {
+const NavItem = ({ icon, text, active = false, visible, to }: NavItemProps) => {
   return (
-    <a
-      href="#"
-      className={`flex items-center p-3 rounded-lg transition-colors ${
+    <Link
+      to={to}
+      className={`flex items-center p-3 rounded-lg transition-all duration-300 ${
         active
           ? "bg-blue-100 text-blue-600 dark:bg-gray-700 dark:text-white"
           : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
@@ -231,7 +436,23 @@ const NavItem = ({ icon, text, active = false, visible }: NavItemProps) => {
     >
       <span className="flex-shrink-0">{icon}</span>
       {visible && <span className="ml-3">{text}</span>}
-    </a>
+    </Link>
+  );
+};
+
+// SubNavItem component
+const SubNavItem = ({ text, to, visible, active = false }: SubNavItemProps & { active?: boolean }) => {
+  return (
+    <Link
+      to={to}
+      className={`block p-2 pl-4 rounded-lg transition-all duration-300 text-sm ${
+        active
+          ? "bg-blue-100 text-blue-600 dark:bg-gray-700 dark:text-white"
+          : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+      }`}
+    >
+      {visible && text}
+    </Link>
   );
 };
 
