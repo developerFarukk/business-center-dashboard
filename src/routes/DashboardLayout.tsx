@@ -278,10 +278,10 @@ const DashboardLayout = () => {
                       whileTap="tap"
                     >
                       <SubNavItem
-                        text="Add Client"
-                        to="/clients/add"
+                        text="Create Client"
+                        to="/dashboard/create-client"
                         visible={sidebarOpen || isMobile}
-                        active={isSubItemActive("/clients/add")}
+                        active={isSubItemActive("/dashboard/create-client")}
                       />
                     </motion.div>
                     <motion.div
@@ -291,21 +291,9 @@ const DashboardLayout = () => {
                     >
                       <SubNavItem
                         text="Client List"
-                        to="/clients"
+                        to="/dashboard/all-client"
                         visible={sidebarOpen || isMobile}
-                        active={isSubItemActive("/clients")}
-                      />
-                    </motion.div>
-                    <motion.div
-                      variants={subNavItemVariants}
-                      whileHover="hover"
-                      whileTap="tap"
-                    >
-                      <SubNavItem
-                        text="Client Reports"
-                        to="/clients/reports"
-                        visible={sidebarOpen || isMobile}
-                        active={isSubItemActive("/clients/reports")}
+                        active={isSubItemActive("/dashboard/all-client")}
                       />
                     </motion.div>
                   </motion.div>
