@@ -4,6 +4,7 @@ import HomeRoot from "./HomeRoot";
 import Home from "../pages/homePage/Home";
 import DashboardHome from "@/dashboard/DashboardHome";
 import DashboardLayout from "./DashboardLayout";
+import PrivateRoute from "./PrivateRoute";
 
 const router = createBrowserRouter([
   {
@@ -12,24 +13,18 @@ const router = createBrowserRouter([
     element: <HomeRoot />,
     children: [
       {
-
         index: true,
         element: <Home />,
       },
 
     ],
   },
-//   {
-//     path: "/dashboard",
-//     element: (<SidebarProvider><main><SidebarTrigger /><App /></main></SidebarProvider>),
-//   },
 
 {
     path: "/dashboard",
-    element: <DashboardLayout />,
+    element: <PrivateRoute><DashboardLayout /></PrivateRoute>,
     children: [
       {
-        // path: "home", 
         index: true,
         element: <DashboardHome />,
       },
