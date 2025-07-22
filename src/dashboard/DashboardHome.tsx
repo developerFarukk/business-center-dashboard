@@ -2,6 +2,7 @@ import { useGetBulkSmsQuery } from "@/redux/features/bulkManageApi";
 import { useGetAllClientQuery } from "@/redux/features/clientManageApi";
 import { useGetAllDeviceQuery } from "@/redux/features/deviceManageApi";
 import StateCard from "@/shared/StateCard";
+import DashboardChart from "./DashboardChart";
 
 const DashboardHome = () => {
   const { data } = useGetAllClientQuery(undefined);
@@ -22,6 +23,11 @@ const DashboardHome = () => {
           <StateCard title="Total Device" value={totalDevice} />
         </div>
         <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+        <DashboardChart
+          totalClients={1200}
+          totalBulkSms={8500}
+          totalDevice={350}
+        />
       </div>
     </main>
   );
