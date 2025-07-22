@@ -59,13 +59,13 @@ const onSubmit: SubmitHandler<LoginInput> = async (data) => {
       errorMessage = error.data.detail;
     } 
  
-    else if (error.data?.message) {
-      errorMessage = error.data.message;
-    }
+    // else if (error.data?.message) {
+    //   errorMessage = error.data.message;
+    // }
  
-    else if (error.status === 'FETCH_ERROR') {
-      errorMessage = "Network error. Check connection.";
-    }
+    // else if (error.status === 'FETCH_ERROR') {
+    //   errorMessage = "Network error. Check connection.";
+    // }
     
     toast.error(errorMessage);
   }
