@@ -349,10 +349,10 @@ const DashboardLayout = () => {
                       whileTap="tap"
                     >
                       <SubNavItem
-                        text="Create Bulk"
-                        to="/bulk/create"
+                        text="Create Bulk SMS"
+                        to="/dashboard/create-sms"
                         visible={sidebarOpen || isMobile}
-                        active={isSubItemActive("/bulk/create")}
+                        active={isSubItemActive("/dashboard/create-sms")}
                       />
                     </motion.div>
                     <motion.div
@@ -361,24 +361,13 @@ const DashboardLayout = () => {
                       whileTap="tap"
                     >
                       <SubNavItem
-                        text="Bulk History"
-                        to="/bulk/history"
+                        text="All Bulk SMS"
+                        to="/dashboard/all-sms"
                         visible={sidebarOpen || isMobile}
-                        active={isSubItemActive("/bulk/history")}
+                        active={isSubItemActive("/dashboard/all-sms")}
                       />
                     </motion.div>
-                    <motion.div
-                      variants={subNavItemVariants}
-                      whileHover="hover"
-                      whileTap="tap"
-                    >
-                      <SubNavItem
-                        text="Bulk Analytics"
-                        to="/bulk/analytics"
-                        visible={sidebarOpen || isMobile}
-                        active={isSubItemActive("/bulk/analytics")}
-                      />
-                    </motion.div>
+    
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -433,9 +422,9 @@ const DashboardLayout = () => {
                     >
                       <SubNavItem
                         text="Add Device"
-                        to="/devices/add"
+                        to="/dashboard/add-device"
                         visible={sidebarOpen || isMobile}
-                        active={isSubItemActive("/devices/add")}
+                        active={isSubItemActive("/dashboard/add-device")}
                       />
                     </motion.div>
                     <motion.div
@@ -445,21 +434,9 @@ const DashboardLayout = () => {
                     >
                       <SubNavItem
                         text="Device List"
-                        to="/devices"
+                        to="/dashboard/device-list"
                         visible={sidebarOpen || isMobile}
-                        active={isSubItemActive("/devices")}
-                      />
-                    </motion.div>
-                    <motion.div
-                      variants={subNavItemVariants}
-                      whileHover="hover"
-                      whileTap="tap"
-                    >
-                      <SubNavItem
-                        text="Device Status"
-                        to="/devices/status"
-                        visible={sidebarOpen || isMobile}
-                        active={isSubItemActive("/devices/status")}
+                        active={isSubItemActive("/dashboard/device-list")}
                       />
                     </motion.div>
                   </motion.div>
@@ -475,9 +452,8 @@ const DashboardLayout = () => {
               <NavItem
                 icon={<FiSettings size={20} />}
                 text="Settings"
-                active={location.pathname === "/settings"}
                 visible={sidebarOpen || isMobile}
-                to="/settings"
+                to="/dashboard"
               />
             </motion.div>
           </nav>

@@ -7,6 +7,10 @@ import DashboardLayout from "./DashboardLayout";
 import PrivateRoute from "./PrivateRoute";
 import CreateClient from "@/dashboard/client-Managment/Create-client";
 import AllClient from "@/dashboard/client-Managment/All-Client";
+import AllSms from "@/dashboard/sms-managment/All-Sms";
+import CreateSms from "@/dashboard/sms-managment/Create-Sms";
+import AddDevice from "@/dashboard/device-Management/Add-Device";
+import DeviceList from "@/dashboard/device-Management/Device-List";
 
 const router = createBrowserRouter([
   {
@@ -37,6 +41,22 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/all-client",
         element: <AllClient />,
+      },
+      {
+        path: "/dashboard/create-sms",
+        element: <CreateSms />,
+      },
+      {
+        path: "/dashboard/all-sms",
+        element: <AllSms />,
+      },
+      {
+        path: "/dashboard/add-device",
+        element: <AddDevice />,
+      },
+      {
+        path: "/dashboard/device-list",
+        element: <DeviceList />,
       },
     ]
   }
