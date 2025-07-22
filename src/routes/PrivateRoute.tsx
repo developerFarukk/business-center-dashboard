@@ -13,7 +13,7 @@ interface TChildren {
 
 const PrivateRoute = ({ children }: TChildren) => {
     const user = useSelector((state: RootState) => state.auth.token); 
-    console.log(user);
+    // console.log(user);
     
     const [loading, setLoading] = useState(true);
     const location = useLocation();
