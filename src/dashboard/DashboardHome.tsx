@@ -17,12 +17,12 @@ const DashboardHome = () => {
   return (
     <main className="p-4">
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+        <div className="grid auto-rows-min gap-4 md:grid-cols-3 mb-8">
           <StateCard title="Total Client" value={totalClients} />
           <StateCard title="Bulk SMS" value={totalBulkSms} />
           <StateCard title="Total Device" value={totalDevice} />
         </div>
-        <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+      
         <DashboardChart
           totalClients={1200}
           totalBulkSms={8500}
