@@ -1,8 +1,7 @@
-
-
-import { useState, useEffect, type ReactNode, useRef } from "react";
+import  { useState, useEffect, type ReactNode, useRef } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+
 import {
   FiMenu,
   FiX,
@@ -20,6 +19,7 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import HeaderDropDown from "@/components/module/HeaderDropDown";
 
 interface NavItemProps {
   icon: ReactNode;
@@ -184,7 +184,11 @@ const DashboardLayout = () => {
       {/* Sidebar */}
       <motion.aside
         ref={sidebarRef}
-        initial={isFirstLoad ? { x: isMobile ? -300 : 0, width: isMobile ? 300 : 80 } : false}
+        initial={
+          isFirstLoad
+            ? { x: isMobile ? -300 : 0, width: isMobile ? 300 : 80 }
+            : false
+        }
         animate={
           isMobile
             ? sidebarOpen
@@ -194,17 +198,17 @@ const DashboardLayout = () => {
             ? { width: 300 }
             : { width: 80 }
         }
-        transition={{ 
-          type: "spring", 
-          stiffness: 200, 
+        transition={{
+          type: "spring",
+          stiffness: 200,
           damping: 25,
-          delay: isFirstLoad ? 0.3 : 0
+          delay: isFirstLoad ? 0.3 : 0,
         }}
         className={`fixed md:relative z-30 h-screen bg-background shadow-md ${
           isMobile ? "w-72" : ""
         }`}
       >
-        <motion.div 
+        <motion.div
           className="flex flex-col h-full p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -494,23 +498,28 @@ const DashboardLayout = () => {
           <div className="pt-4 mt-auto border-t dark:border-gray-700">
             {sidebarOpen || isMobile ? (
               <motion.div
-                className="flex items-center space-x-3"
+                className="flex justify-between space-x-3"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: isFirstLoad ? 0.7 : 0 }}
               >
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3q2h29IZLxDPT2AJ-lzrTCbkFc_TWVjuVXQ&s"
-                    alt="faruk"
-                  />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium">John Doe</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Admin
-                  </p>
+                <div className="flex justify-center items-center gap-2">
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarImage
+                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkuFnUSTkmuFrahAKIiNz1rmlp6FgAX1ku3w&s"
+                      alt="faruk"
+                    />
+                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">Parvez</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Admin
+                    </p>
+                  </div>
+                </div>
+                <div className="">
+                  <HeaderDropDown />
                 </div>
               </motion.div>
             ) : (
@@ -520,7 +529,7 @@ const DashboardLayout = () => {
               >
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3q2h29IZLxDPT2AJ-lzrTCbkFc_TWVjuVXQ&s"
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkuFnUSTkmuFrahAKIiNz1rmlp6FgAX1ku3w&s"
                     alt="faruk"
                   />
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
@@ -537,11 +546,11 @@ const DashboardLayout = () => {
         <motion.header
           initial={isFirstLoad ? { y: -50, opacity: 0 } : false}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ 
+          transition={{
             type: "spring",
             stiffness: 200,
             damping: 25,
-            delay: isFirstLoad ? 0.4 : 0 
+            delay: isFirstLoad ? 0.4 : 0,
           }}
           className="sticky top-0 z-20 bg-background border-b dark:border-gray-700 p-4"
         >
@@ -569,18 +578,21 @@ const DashboardLayout = () => {
             </div>
 
             {/* Avatar on the right side */}
-            <motion.div
-              className="flex items-center gap-4"
-              whileHover={{ scale: 1.05 }}
-            >
-              <Avatar className="h-8 w-8">
-                <AvatarImage
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3q2h29IZLxDPT2AJ-lzrTCbkFc_TWVjuVXQ&s"
-                  alt="faruk"
-                />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-            </motion.div>
+            <section className="flex justify-center items-center gap-2 text-center">
+              <motion.div
+                className="flex items-center gap-4"
+                whileHover={{ scale: 1.05 }}
+              >
+                <Avatar className="h-8 w-8">
+                  <AvatarImage
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkuFnUSTkmuFrahAKIiNz1rmlp6FgAX1ku3w&s"
+                    alt="faruk"
+                  />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+              </motion.div>
+              <HeaderDropDown />
+            </section>
           </div>
         </motion.header>
 
