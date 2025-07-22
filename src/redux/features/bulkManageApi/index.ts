@@ -8,7 +8,7 @@ import type { TBulkSms } from "@/types/smsType";
 const bulkSmsManagementApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
 
-    // get all client api
+    // get sms client api
     getBulkSms: builder.query({
       query: () => ({
         url: "/client/bulkClient/list?limit=300",
