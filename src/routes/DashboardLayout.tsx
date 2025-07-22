@@ -1,6 +1,5 @@
 
 
-
 import { useState, useEffect, type ReactNode, useRef } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -46,6 +45,7 @@ const DashboardLayout = () => {
     bulk: false,
     devices: false,
   });
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   // Set initial expanded state based on current route
@@ -100,6 +100,15 @@ const DashboardLayout = () => {
     };
   }, [isMobile, sidebarOpen]);
 
+  useEffect(() => {
+    if (isFirstLoad) {
+      const timer = setTimeout(() => {
+        setIsFirstLoad(false);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isFirstLoad]);
+
   const toggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
   };
@@ -116,20 +125,9 @@ const DashboardLayout = () => {
   };
 
   // Animation variants
-  const sidebarVariants = {
-    mobile: {
-      open: { x: 0, transition: { type: "spring" as const, stiffness: 300, damping: 30 } },
-      closed: { x: -300, transition: { type: "spring" as const, stiffness: 300, damping: 30 } }
-    },
-    desktop: {
-      open: { width: 300, transition: { type: "spring" as const, stiffness: 300, damping: 30 } },
-      closed: { width: 80, transition: { type: "spring" as const, stiffness: 300, damping: 30 } }
-    }
-  };
-
   const overlayVariants = {
     open: { opacity: 0.5, transition: { duration: 0.3 } },
-    closed: { opacity: 0, transition: { duration: 0.3 } }
+    closed: { opacity: 0, transition: { duration: 0.3 } },
   };
 
   const subMenuVariants = {
@@ -137,28 +135,34 @@ const DashboardLayout = () => {
       height: "auto",
       opacity: 1,
       transition: {
-        height: { duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] },
-        opacity: { duration: 0.4 }
-      }
+        height: {
+          duration: 0.3,
+          ease: [0.04, 0.62, 0.23, 0.98] as const,
+        },
+        opacity: { duration: 0.4 },
+      },
     },
     closed: {
       height: 0,
       opacity: 0,
       transition: {
-        height: { duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] },
-        opacity: { duration: 0.2 }
-      }
-    }
+        height: {
+          duration: 0.3,
+          ease: [0.04, 0.62, 0.23, 0.98] as const,
+        },
+        opacity: { duration: 0.2 },
+      },
+    },
   };
 
   const navItemVariants = {
     hover: { scale: 1.02 },
-    tap: { scale: 0.98 }
+    tap: { scale: 0.98 },
   };
 
   const subNavItemVariants = {
     hover: { x: 5 },
-    tap: { x: 0 }
+    tap: { x: 0 },
   };
 
   return (
@@ -180,17 +184,35 @@ const DashboardLayout = () => {
       {/* Sidebar */}
       <motion.aside
         ref={sidebarRef}
-        initial={false}
-        animate={isMobile ? (sidebarOpen ? "open" : "closed") : (sidebarOpen ? "open" : "closed")}
-        variants={isMobile ? sidebarVariants.mobile : sidebarVariants.desktop}
+        initial={isFirstLoad ? { x: isMobile ? -300 : 0, width: isMobile ? 300 : 80 } : false}
+        animate={
+          isMobile
+            ? sidebarOpen
+              ? { x: 0 }
+              : { x: -300 }
+            : sidebarOpen
+            ? { width: 300 }
+            : { width: 80 }
+        }
+        transition={{ 
+          type: "spring", 
+          stiffness: 200, 
+          damping: 25,
+          delay: isFirstLoad ? 0.3 : 0
+        }}
         className={`fixed md:relative z-30 h-screen bg-background shadow-md ${
           isMobile ? "w-72" : ""
         }`}
       >
-        <div className="flex flex-col h-full p-4">
+        <motion.div 
+          className="flex flex-col h-full p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: isFirstLoad ? 0.5 : 0 }}
+        >
           {/* Navigation */}
           <nav className="flex-1 space-y-1">
-            <motion.div 
+            <motion.div
               variants={navItemVariants}
               whileHover="hover"
               whileTap="tap"
@@ -203,9 +225,9 @@ const DashboardLayout = () => {
                 to="/dashboard"
               />
             </motion.div>
-            
+
             {/* Client Management */}
-            <motion.div 
+            <motion.div
               variants={navItemVariants}
               whileHover="hover"
               whileTap="tap"
@@ -222,7 +244,9 @@ const DashboardLayout = () => {
                 <FiUsers size={20} className="flex-shrink-0" />
                 {(sidebarOpen || isMobile) && (
                   <>
-                    <span className="ml-3 flex-1 text-left">Client Management</span>
+                    <span className="ml-3 flex-1 text-left">
+                      Client Management
+                    </span>
                     <motion.div
                       animate={{
                         rotate: expandedItems.clients ? 90 : 0,
@@ -244,7 +268,7 @@ const DashboardLayout = () => {
                     exit="closed"
                     className="overflow-hidden space-y-1"
                   >
-                    <motion.div 
+                    <motion.div
                       variants={subNavItemVariants}
                       whileHover="hover"
                       whileTap="tap"
@@ -256,7 +280,7 @@ const DashboardLayout = () => {
                         active={isSubItemActive("/clients/add")}
                       />
                     </motion.div>
-                    <motion.div 
+                    <motion.div
                       variants={subNavItemVariants}
                       whileHover="hover"
                       whileTap="tap"
@@ -268,7 +292,7 @@ const DashboardLayout = () => {
                         active={isSubItemActive("/clients")}
                       />
                     </motion.div>
-                    <motion.div 
+                    <motion.div
                       variants={subNavItemVariants}
                       whileHover="hover"
                       whileTap="tap"
@@ -286,7 +310,7 @@ const DashboardLayout = () => {
             </motion.div>
 
             {/* Bulk Management */}
-            <motion.div 
+            <motion.div
               variants={navItemVariants}
               whileHover="hover"
               whileTap="tap"
@@ -303,7 +327,9 @@ const DashboardLayout = () => {
                 <FiDatabase size={20} className="flex-shrink-0" />
                 {(sidebarOpen || isMobile) && (
                   <>
-                    <span className="ml-3 flex-1 text-left">Bulk Management</span>
+                    <span className="ml-3 flex-1 text-left">
+                      Bulk Management
+                    </span>
                     <motion.div
                       animate={{
                         rotate: expandedItems.bulk ? 90 : 0,
@@ -325,7 +351,7 @@ const DashboardLayout = () => {
                     exit="closed"
                     className="overflow-hidden space-y-1"
                   >
-                    <motion.div 
+                    <motion.div
                       variants={subNavItemVariants}
                       whileHover="hover"
                       whileTap="tap"
@@ -337,7 +363,7 @@ const DashboardLayout = () => {
                         active={isSubItemActive("/bulk/create")}
                       />
                     </motion.div>
-                    <motion.div 
+                    <motion.div
                       variants={subNavItemVariants}
                       whileHover="hover"
                       whileTap="tap"
@@ -349,7 +375,7 @@ const DashboardLayout = () => {
                         active={isSubItemActive("/bulk/history")}
                       />
                     </motion.div>
-                    <motion.div 
+                    <motion.div
                       variants={subNavItemVariants}
                       whileHover="hover"
                       whileTap="tap"
@@ -367,7 +393,7 @@ const DashboardLayout = () => {
             </motion.div>
 
             {/* Device Management */}
-            <motion.div 
+            <motion.div
               variants={navItemVariants}
               whileHover="hover"
               whileTap="tap"
@@ -384,7 +410,9 @@ const DashboardLayout = () => {
                 <FiServer size={20} className="flex-shrink-0" />
                 {(sidebarOpen || isMobile) && (
                   <>
-                    <span className="ml-3 flex-1 text-left">Device Management</span>
+                    <span className="ml-3 flex-1 text-left">
+                      Device Management
+                    </span>
                     <motion.div
                       animate={{
                         rotate: expandedItems.devices ? 90 : 0,
@@ -406,7 +434,7 @@ const DashboardLayout = () => {
                     exit="closed"
                     className="overflow-hidden space-y-1"
                   >
-                    <motion.div 
+                    <motion.div
                       variants={subNavItemVariants}
                       whileHover="hover"
                       whileTap="tap"
@@ -418,7 +446,7 @@ const DashboardLayout = () => {
                         active={isSubItemActive("/devices/add")}
                       />
                     </motion.div>
-                    <motion.div 
+                    <motion.div
                       variants={subNavItemVariants}
                       whileHover="hover"
                       whileTap="tap"
@@ -430,7 +458,7 @@ const DashboardLayout = () => {
                         active={isSubItemActive("/devices")}
                       />
                     </motion.div>
-                    <motion.div 
+                    <motion.div
                       variants={subNavItemVariants}
                       whileHover="hover"
                       whileTap="tap"
@@ -447,7 +475,7 @@ const DashboardLayout = () => {
               </AnimatePresence>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               variants={navItemVariants}
               whileHover="hover"
               whileTap="tap"
@@ -463,18 +491,13 @@ const DashboardLayout = () => {
           </nav>
 
           {/* User profile */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="pt-4 mt-auto border-t dark:border-gray-700"
-          >
+          <div className="pt-4 mt-auto border-t dark:border-gray-700">
             {sidebarOpen || isMobile ? (
-              <motion.div 
+              <motion.div
                 className="flex items-center space-x-3"
-                initial={{ x: -10 }}
-                animate={{ x: 0 }}
-                transition={{ delay: 0.1 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: isFirstLoad ? 0.7 : 0 }}
               >
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage
@@ -491,7 +514,7 @@ const DashboardLayout = () => {
                 </div>
               </motion.div>
             ) : (
-              <motion.div 
+              <motion.div
                 className="flex justify-center"
                 whileHover={{ scale: 1.1 }}
               >
@@ -504,17 +527,22 @@ const DashboardLayout = () => {
                 </Avatar>
               </motion.div>
             )}
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
       </motion.aside>
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Fixed header */}
-        <motion.header 
-          initial={{ y: -20, opacity: 0 }}
+        <motion.header
+          initial={isFirstLoad ? { y: -50, opacity: 0 } : false}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.3 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 200,
+            damping: 25,
+            delay: isFirstLoad ? 0.4 : 0 
+          }}
           className="sticky top-0 z-20 bg-background border-b dark:border-gray-700 p-4"
         >
           <div className="flex items-center justify-between">
@@ -532,22 +560,16 @@ const DashboardLayout = () => {
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      <BreadcrumbPage className="text-2xl font-bold">
-                        SMS Gateway
-                      </BreadcrumbPage>
-                    </motion.div>
+                    <BreadcrumbPage className="text-2xl font-bold">
+                      SMS Gateway
+                    </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
 
             {/* Avatar on the right side */}
-            <motion.div 
+            <motion.div
               className="flex items-center gap-4"
               whileHover={{ scale: 1.05 }}
             >
@@ -566,7 +588,7 @@ const DashboardLayout = () => {
         <motion.main
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
+          transition={{ duration: 0.3, delay: isFirstLoad ? 0.8 : 0 }}
           className="flex-1 pl-0 pr-4 py-4"
         >
           <Outlet />
@@ -587,7 +609,7 @@ const NavItem = ({ icon, text, active = false, visible, to }: NavItemProps) => {
           : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
       }`}
     >
-      <motion.span 
+      <motion.span
         className="flex-shrink-0"
         whileHover={{ rotate: 10 }}
         whileTap={{ rotate: -10 }}
@@ -595,7 +617,7 @@ const NavItem = ({ icon, text, active = false, visible, to }: NavItemProps) => {
         {icon}
       </motion.span>
       {visible && (
-        <motion.span 
+        <motion.span
           className="ml-3"
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
