@@ -1,33 +1,57 @@
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { Home } from "lucide-react";
 import { Link } from "react-router-dom";
 
-
-
-
-
 const Error = () => {
+  return (
+    <motion.div
+      className="min-h-screen flex flex-col items-center justify-center text-center p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+    >
+      <motion.h1
+        className="text-6xl md:text-8xl font-bold text-black dark:text-zinc-50"
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 100 }}
+      >
+        404
+      </motion.h1>
 
-    return (
-        <div>
-            <div>
-            <section className="justify-center flex items-center ">
-                <div className="container  justify-center  mx-auto lg:flex lg:items-center ">
-                    <div className="relative w-full mt-12 lg:w-1/2 lg:mt-0 ">
-                        <img
-                            className="w-full max-w-lg lg:mx-auto rounded-lg"
-                            src="https://webartdevelopers.com/blog/wp-content/uploads/2018/09/404-SVG-Animated-Page-Concept.png"
-                            alt=""
-                        />
-                        <div className="flex justify-center lg:mt-10 md:mt-6 mt-4">
-                            <Link to={"/"}>
-                                <button title="Go to Home"></button>
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-        </div>
-    );
+      <motion.h2
+        className="text-2xl md:text-4xl mt-4 text-black dark:text-zinc-50"
+        initial={{ scale: 0.8 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        Page Not Found
+      </motion.h2>
+
+      <motion.p
+        className="text-base md:text-lg mt-2 text-black dark:text-zinc-50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+      >
+        The page you are looking for does not exist.
+      </motion.p>
+
+      <motion.div
+        className="mt-6"
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 1 }}
+      >
+        <Link to="/">
+          <Button>
+            <Home className="mr-2" /> Return Home
+          </Button>
+        </Link>
+      </motion.div>
+    </motion.div>
+  );
 };
 
 export default Error;
