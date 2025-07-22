@@ -2,6 +2,7 @@
 
 
 import type { RootState } from "@/redux/store";
+import Loader from "@/shared/Looder";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Navigate, useLocation } from "react-router-dom";
@@ -26,7 +27,7 @@ const PrivateRoute = ({ children }: TChildren) => {
     }, [user]);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <Loader />;
     }
 
     if (user) {
