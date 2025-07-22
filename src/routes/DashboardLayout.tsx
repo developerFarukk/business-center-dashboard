@@ -118,12 +118,12 @@ const DashboardLayout = () => {
   // Animation variants
   const sidebarVariants = {
     mobile: {
-      open: { x: 0, transition: { type: "spring", stiffness: 300, damping: 30 } },
-      closed: { x: -300, transition: { type: "spring", stiffness: 300, damping: 30 } }
+      open: { x: 0, transition: { type: "spring" as const, stiffness: 300, damping: 30 } },
+      closed: { x: -300, transition: { type: "spring" as const, stiffness: 300, damping: 30 } }
     },
     desktop: {
-      open: { width: 300, transition: { type: "spring", stiffness: 300, damping: 30 } },
-      closed: { width: 80, transition: { type: "spring", stiffness: 300, damping: 30 } }
+      open: { width: 300, transition: { type: "spring" as const, stiffness: 300, damping: 30 } },
+      closed: { width: 80, transition: { type: "spring" as const, stiffness: 300, damping: 30 } }
     }
   };
 
