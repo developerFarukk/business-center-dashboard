@@ -1,5 +1,6 @@
 
 
+
 import { useState, useEffect, type ReactNode, useRef } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -33,6 +34,7 @@ interface SubNavItemProps {
   text: string;
   to: string;
   visible?: boolean;
+  active?: boolean;
 }
 
 const DashboardLayout = () => {
@@ -45,6 +47,24 @@ const DashboardLayout = () => {
     devices: false,
   });
   const sidebarRef = useRef<HTMLDivElement>(null);
+
+  // Set initial expanded state based on current route
+  useEffect(() => {
+    const path = location.pathname;
+    const newExpandedItems = { ...expandedItems };
+
+    if (path.startsWith("/clients")) {
+      newExpandedItems.clients = true;
+    }
+    if (path.startsWith("/bulk")) {
+      newExpandedItems.bulk = true;
+    }
+    if (path.startsWith("/devices")) {
+      newExpandedItems.devices = true;
+    }
+
+    setExpandedItems(newExpandedItems);
+  }, [location.pathname]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -80,7 +100,9 @@ const DashboardLayout = () => {
     };
   }, [isMobile, sidebarOpen]);
 
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  const toggleSidebar = () => {
+    setSidebarOpen((prev) => !prev);
+  };
 
   const toggleSubItems = (itemKey: string) => {
     setExpandedItems((prev) => ({
@@ -89,9 +111,54 @@ const DashboardLayout = () => {
     }));
   };
 
-  // Check if subitem is active
   const isSubItemActive = (path: string) => {
     return location.pathname === path;
+  };
+
+  // Animation variants
+  const sidebarVariants = {
+    mobile: {
+      open: { x: 0, transition: { type: "spring", stiffness: 300, damping: 30 } },
+      closed: { x: -300, transition: { type: "spring", stiffness: 300, damping: 30 } }
+    },
+    desktop: {
+      open: { width: 300, transition: { type: "spring", stiffness: 300, damping: 30 } },
+      closed: { width: 80, transition: { type: "spring", stiffness: 300, damping: 30 } }
+    }
+  };
+
+  const overlayVariants = {
+    open: { opacity: 0.5, transition: { duration: 0.3 } },
+    closed: { opacity: 0, transition: { duration: 0.3 } }
+  };
+
+  const subMenuVariants = {
+    open: {
+      height: "auto",
+      opacity: 1,
+      transition: {
+        height: { duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] },
+        opacity: { duration: 0.4 }
+      }
+    },
+    closed: {
+      height: 0,
+      opacity: 0,
+      transition: {
+        height: { duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] },
+        opacity: { duration: 0.2 }
+      }
+    }
+  };
+
+  const navItemVariants = {
+    hover: { scale: 1.02 },
+    tap: { scale: 0.98 }
+  };
+
+  const subNavItemVariants = {
+    hover: { x: 5 },
+    tap: { x: 0 }
   };
 
   return (
@@ -100,10 +167,10 @@ const DashboardLayout = () => {
       <AnimatePresence>
         {isMobile && sidebarOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.5 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            variants={overlayVariants}
+            initial="closed"
+            animate="open"
+            exit="closed"
             className="fixed inset-0 z-20 bg-black"
             onClick={() => setSidebarOpen(false)}
           />
@@ -111,28 +178,23 @@ const DashboardLayout = () => {
       </AnimatePresence>
 
       {/* Sidebar */}
-      <AnimatePresence mode="wait">
-        <motion.aside
-          ref={sidebarRef}
-          initial={isMobile ? { x: -300 } : { width: 300 }}
-          animate={
-            isMobile
-              ? sidebarOpen
-                ? { x: 0 }
-                : { x: -300 }
-              : sidebarOpen
-              ? { width: 300 }
-              : { width: 80 }
-          }
-          exit={isMobile ? { x: -300 } : { width: 80 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className={`fixed md:relative z-30 h-screen bg-white dark:bg-gray-800 shadow-md ${
-            isMobile ? "w-72" : ""
-          }`}
-        >
-          <div className="flex flex-col h-full p-4">
-            {/* Navigation */}
-            <nav className="flex-1 space-y-1">
+      <motion.aside
+        ref={sidebarRef}
+        initial={false}
+        animate={isMobile ? (sidebarOpen ? "open" : "closed") : (sidebarOpen ? "open" : "closed")}
+        variants={isMobile ? sidebarVariants.mobile : sidebarVariants.desktop}
+        className={`fixed md:relative z-30 h-screen bg-background shadow-md ${
+          isMobile ? "w-72" : ""
+        }`}
+      >
+        <div className="flex flex-col h-full p-4">
+          {/* Navigation */}
+          <nav className="flex-1 space-y-1">
+            <motion.div 
+              variants={navItemVariants}
+              whileHover="hover"
+              whileTap="tap"
+            >
               <NavItem
                 icon={<FiHome size={20} />}
                 text="Dashboard"
@@ -140,187 +202,256 @@ const DashboardLayout = () => {
                 visible={sidebarOpen || isMobile}
                 to="/dashboard"
               />
-              
-              {/* Client Management */}
-              <div className="space-y-1">
-                <button
-                  onClick={() => toggleSubItems("clients")}
-                  className={`w-full flex items-center p-3 rounded-lg transition-all duration-300 ${
-                    expandedItems.clients
-                      ? "bg-blue-100 text-blue-600 dark:bg-gray-700 dark:text-white"
-                      : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  <FiUsers size={20} className="flex-shrink-0" />
-                  {(sidebarOpen || isMobile) && (
-                    <>
-                      <span className="ml-3 flex-1 text-left">Client Management</span>
-                      <motion.div
-                        animate={{
-                          rotate: expandedItems.clients ? 90 : 0,
-                        }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <FiChevronRight size={16} />
-                      </motion.div>
-                    </>
-                  )}
-                </button>
-
-                <AnimatePresence>
-                  {expandedItems.clients && (sidebarOpen || isMobile) && (
+            </motion.div>
+            
+            {/* Client Management */}
+            <motion.div 
+              variants={navItemVariants}
+              whileHover="hover"
+              whileTap="tap"
+              className="space-y-1"
+            >
+              <button
+                onClick={() => toggleSubItems("clients")}
+                className={`w-full flex items-center p-3 rounded-lg transition-all duration-300 ${
+                  expandedItems.clients
+                    ? "bg-blue-100 text-blue-600 dark:bg-gray-700 dark:text-white"
+                    : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+                }`}
+              >
+                <FiUsers size={20} className="flex-shrink-0" />
+                {(sidebarOpen || isMobile) && (
+                  <>
+                    <span className="ml-3 flex-1 text-left">Client Management</span>
                     <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
+                      animate={{
+                        rotate: expandedItems.clients ? 90 : 0,
+                      }}
                       transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
                     >
-                      <div className="ml-8 space-y-1">
-                        <SubNavItem
-                          text="Add Client"
-                          to="/clients/add"
-                          visible={sidebarOpen || isMobile}
-                          active={isSubItemActive("/clients/add")}
-                        />
-                        <SubNavItem
-                          text="Client List"
-                          to="/clients"
-                          visible={sidebarOpen || isMobile}
-                          active={isSubItemActive("/clients")}
-                        />
-                        <SubNavItem
-                          text="Client Reports"
-                          to="/clients/reports"
-                          visible={sidebarOpen || isMobile}
-                          active={isSubItemActive("/clients/reports")}
-                        />
-                      </div>
+                      <FiChevronRight size={16} />
                     </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                  </>
+                )}
+              </button>
 
-              {/* Bulk Management */}
-              <div className="space-y-1">
-                <button
-                  onClick={() => toggleSubItems("bulk")}
-                  className={`w-full flex items-center p-3 rounded-lg transition-all duration-300 ${
-                    expandedItems.bulk
-                      ? "bg-blue-100 text-blue-600 dark:bg-gray-700 dark:text-white"
-                      : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  <FiDatabase size={20} className="flex-shrink-0" />
-                  {(sidebarOpen || isMobile) && (
-                    <>
-                      <span className="ml-3 flex-1 text-left">Bulk Management</span>
-                      <motion.div
-                        animate={{
-                          rotate: expandedItems.bulk ? 90 : 0,
-                        }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <FiChevronRight size={16} />
-                      </motion.div>
-                    </>
-                  )}
-                </button>
+              <AnimatePresence>
+                {expandedItems.clients && (sidebarOpen || isMobile) && (
+                  <motion.div
+                    variants={subMenuVariants}
+                    initial="closed"
+                    animate="open"
+                    exit="closed"
+                    className="overflow-hidden space-y-1"
+                  >
+                    <motion.div 
+                      variants={subNavItemVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                    >
+                      <SubNavItem
+                        text="Add Client"
+                        to="/clients/add"
+                        visible={sidebarOpen || isMobile}
+                        active={isSubItemActive("/clients/add")}
+                      />
+                    </motion.div>
+                    <motion.div 
+                      variants={subNavItemVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                    >
+                      <SubNavItem
+                        text="Client List"
+                        to="/clients"
+                        visible={sidebarOpen || isMobile}
+                        active={isSubItemActive("/clients")}
+                      />
+                    </motion.div>
+                    <motion.div 
+                      variants={subNavItemVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                    >
+                      <SubNavItem
+                        text="Client Reports"
+                        to="/clients/reports"
+                        visible={sidebarOpen || isMobile}
+                        active={isSubItemActive("/clients/reports")}
+                      />
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
 
-                <AnimatePresence>
-                  {expandedItems.bulk && (sidebarOpen || isMobile) && (
+            {/* Bulk Management */}
+            <motion.div 
+              variants={navItemVariants}
+              whileHover="hover"
+              whileTap="tap"
+              className="space-y-1"
+            >
+              <button
+                onClick={() => toggleSubItems("bulk")}
+                className={`w-full flex items-center p-3 rounded-lg transition-all duration-300 ${
+                  expandedItems.bulk
+                    ? "bg-blue-100 text-blue-600 dark:bg-gray-700 dark:text-white"
+                    : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+                }`}
+              >
+                <FiDatabase size={20} className="flex-shrink-0" />
+                {(sidebarOpen || isMobile) && (
+                  <>
+                    <span className="ml-3 flex-1 text-left">Bulk Management</span>
                     <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
+                      animate={{
+                        rotate: expandedItems.bulk ? 90 : 0,
+                      }}
                       transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
                     >
-                      <div className="ml-8 space-y-1">
-                        <SubNavItem
-                          text="Create Bulk"
-                          to="/bulk/create"
-                          visible={sidebarOpen || isMobile}
-                          active={isSubItemActive("/bulk/create")}
-                        />
-                        <SubNavItem
-                          text="Bulk History"
-                          to="/bulk/history"
-                          visible={sidebarOpen || isMobile}
-                          active={isSubItemActive("/bulk/history")}
-                        />
-                        <SubNavItem
-                          text="Bulk Analytics"
-                          to="/bulk/analytics"
-                          visible={sidebarOpen || isMobile}
-                          active={isSubItemActive("/bulk/analytics")}
-                        />
-                      </div>
+                      <FiChevronRight size={16} />
                     </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                  </>
+                )}
+              </button>
 
-              {/* Device Management */}
-              <div className="space-y-1">
-                <button
-                  onClick={() => toggleSubItems("devices")}
-                  className={`w-full flex items-center p-3 rounded-lg transition-all duration-300 ${
-                    expandedItems.devices
-                      ? "bg-blue-100 text-blue-600 dark:bg-gray-700 dark:text-white"
-                      : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  <FiServer size={20} className="flex-shrink-0" />
-                  {(sidebarOpen || isMobile) && (
-                    <>
-                      <span className="ml-3 flex-1 text-left">Device Management</span>
-                      <motion.div
-                        animate={{
-                          rotate: expandedItems.devices ? 90 : 0,
-                        }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <FiChevronRight size={16} />
-                      </motion.div>
-                    </>
-                  )}
-                </button>
+              <AnimatePresence>
+                {expandedItems.bulk && (sidebarOpen || isMobile) && (
+                  <motion.div
+                    variants={subMenuVariants}
+                    initial="closed"
+                    animate="open"
+                    exit="closed"
+                    className="overflow-hidden space-y-1"
+                  >
+                    <motion.div 
+                      variants={subNavItemVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                    >
+                      <SubNavItem
+                        text="Create Bulk"
+                        to="/bulk/create"
+                        visible={sidebarOpen || isMobile}
+                        active={isSubItemActive("/bulk/create")}
+                      />
+                    </motion.div>
+                    <motion.div 
+                      variants={subNavItemVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                    >
+                      <SubNavItem
+                        text="Bulk History"
+                        to="/bulk/history"
+                        visible={sidebarOpen || isMobile}
+                        active={isSubItemActive("/bulk/history")}
+                      />
+                    </motion.div>
+                    <motion.div 
+                      variants={subNavItemVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                    >
+                      <SubNavItem
+                        text="Bulk Analytics"
+                        to="/bulk/analytics"
+                        visible={sidebarOpen || isMobile}
+                        active={isSubItemActive("/bulk/analytics")}
+                      />
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
 
-                <AnimatePresence>
-                  {expandedItems.devices && (sidebarOpen || isMobile) && (
+            {/* Device Management */}
+            <motion.div 
+              variants={navItemVariants}
+              whileHover="hover"
+              whileTap="tap"
+              className="space-y-1"
+            >
+              <button
+                onClick={() => toggleSubItems("devices")}
+                className={`w-full flex items-center p-3 rounded-lg transition-all duration-300 ${
+                  expandedItems.devices
+                    ? "bg-blue-100 text-blue-600 dark:bg-gray-700 dark:text-white"
+                    : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+                }`}
+              >
+                <FiServer size={20} className="flex-shrink-0" />
+                {(sidebarOpen || isMobile) && (
+                  <>
+                    <span className="ml-3 flex-1 text-left">Device Management</span>
                     <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
+                      animate={{
+                        rotate: expandedItems.devices ? 90 : 0,
+                      }}
                       transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
                     >
-                      <div className="ml-8 space-y-1">
-                        <SubNavItem
-                          text="Add Device"
-                          to="/devices/add"
-                          visible={sidebarOpen || isMobile}
-                          active={isSubItemActive("/devices/add")}
-                        />
-                        <SubNavItem
-                          text="Device List"
-                          to="/devices"
-                          visible={sidebarOpen || isMobile}
-                          active={isSubItemActive("/devices")}
-                        />
-                        <SubNavItem
-                          text="Device Status"
-                          to="/devices/status"
-                          visible={sidebarOpen || isMobile}
-                          active={isSubItemActive("/devices/status")}
-                        />
-                      </div>
+                      <FiChevronRight size={16} />
                     </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                  </>
+                )}
+              </button>
 
+              <AnimatePresence>
+                {expandedItems.devices && (sidebarOpen || isMobile) && (
+                  <motion.div
+                    variants={subMenuVariants}
+                    initial="closed"
+                    animate="open"
+                    exit="closed"
+                    className="overflow-hidden space-y-1"
+                  >
+                    <motion.div 
+                      variants={subNavItemVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                    >
+                      <SubNavItem
+                        text="Add Device"
+                        to="/devices/add"
+                        visible={sidebarOpen || isMobile}
+                        active={isSubItemActive("/devices/add")}
+                      />
+                    </motion.div>
+                    <motion.div 
+                      variants={subNavItemVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                    >
+                      <SubNavItem
+                        text="Device List"
+                        to="/devices"
+                        visible={sidebarOpen || isMobile}
+                        active={isSubItemActive("/devices")}
+                      />
+                    </motion.div>
+                    <motion.div 
+                      variants={subNavItemVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                    >
+                      <SubNavItem
+                        text="Device Status"
+                        to="/devices/status"
+                        visible={sidebarOpen || isMobile}
+                        active={isSubItemActive("/devices/status")}
+                      />
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+
+            <motion.div 
+              variants={navItemVariants}
+              whileHover="hover"
+              whileTap="tap"
+            >
               <NavItem
                 icon={<FiSettings size={20} />}
                 text="Settings"
@@ -328,75 +459,98 @@ const DashboardLayout = () => {
                 visible={sidebarOpen || isMobile}
                 to="/settings"
               />
-            </nav>
-
-            {/* User profile */}
-            <motion.div
-              initial={{ opacity: 1 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 1 }}
-              transition={{ duration: 0.1 }}
-              className="pt-4 mt-auto border-t dark:border-gray-700"
-            >
-              {sidebarOpen || isMobile ? (
-                <div className="flex items-center space-x-3">
-                  <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage
-                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3q2h29IZLxDPT2AJ-lzrTCbkFc_TWVjuVXQ&s"
-                      alt="faruk"
-                    />
-                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">John Doe</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Admin
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex justify-center">
-                  <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage
-                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3q2h29IZLxDPT2AJ-lzrTCbkFc_TWVjuVXQ&s"
-                      alt="faruk"
-                    />
-                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                  </Avatar>
-                </div>
-              )}
             </motion.div>
-          </div>
-        </motion.aside>
-      </AnimatePresence>
+          </nav>
+
+          {/* User profile */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="pt-4 mt-auto border-t dark:border-gray-700"
+          >
+            {sidebarOpen || isMobile ? (
+              <motion.div 
+                className="flex items-center space-x-3"
+                initial={{ x: -10 }}
+                animate={{ x: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarImage
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3q2h29IZLxDPT2AJ-lzrTCbkFc_TWVjuVXQ&s"
+                    alt="faruk"
+                  />
+                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium">John Doe</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Admin
+                  </p>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div 
+                className="flex justify-center"
+                whileHover={{ scale: 1.1 }}
+              >
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarImage
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3q2h29IZLxDPT2AJ-lzrTCbkFc_TWVjuVXQ&s"
+                    alt="faruk"
+                  />
+                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                </Avatar>
+              </motion.div>
+            )}
+          </motion.div>
+        </div>
+      </motion.aside>
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Fixed header */}
-        <header className="sticky top-0 z-20 bg-white dark:bg-gray-900 border-b dark:border-gray-800 p-4">
+        <motion.header 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className="sticky top-0 z-20 bg-background border-b dark:border-gray-700 p-4"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               {/* Sidebar toggle button in header */}
-              <button
+              <motion.button
                 onClick={toggleSidebar}
-                className="mr-4 p-1 text-gray-600 rounded-md hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="mr-4 p-1 text-gray-600 rounded-md hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 {sidebarOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-              </button>
+              </motion.button>
 
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    <BreadcrumbPage className="text-2xl font-bold">
-                      SMS Gateway
-                    </BreadcrumbPage>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <BreadcrumbPage className="text-2xl font-bold">
+                        SMS Gateway
+                      </BreadcrumbPage>
+                    </motion.div>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
 
             {/* Avatar on the right side */}
-            <div className="flex items-center gap-4">
+            <motion.div 
+              className="flex items-center gap-4"
+              whileHover={{ scale: 1.05 }}
+            >
               <Avatar className="h-8 w-8">
                 <AvatarImage
                   src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3q2h29IZLxDPT2AJ-lzrTCbkFc_TWVjuVXQ&s"
@@ -404,16 +558,15 @@ const DashboardLayout = () => {
                 />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
-            </div>
+            </motion.div>
           </div>
-        </header>
+        </motion.header>
 
         {/* Main content */}
         <motion.main
-          animate={{
-            marginLeft: isMobile ? 0 : sidebarOpen ? 0 : 0,
-          }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
           className="flex-1 pl-0 pr-4 py-4"
         >
           <Outlet />
@@ -434,14 +587,29 @@ const NavItem = ({ icon, text, active = false, visible, to }: NavItemProps) => {
           : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
       }`}
     >
-      <span className="flex-shrink-0">{icon}</span>
-      {visible && <span className="ml-3">{text}</span>}
+      <motion.span 
+        className="flex-shrink-0"
+        whileHover={{ rotate: 10 }}
+        whileTap={{ rotate: -10 }}
+      >
+        {icon}
+      </motion.span>
+      {visible && (
+        <motion.span 
+          className="ml-3"
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {text}
+        </motion.span>
+      )}
     </Link>
   );
 };
 
 // SubNavItem component
-const SubNavItem = ({ text, to, visible, active = false }: SubNavItemProps & { active?: boolean }) => {
+const SubNavItem = ({ text, to, visible, active = false }: SubNavItemProps) => {
   return (
     <Link
       to={to}
@@ -451,7 +619,15 @@ const SubNavItem = ({ text, to, visible, active = false }: SubNavItemProps & { a
           : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
       }`}
     >
-      {visible && text}
+      {visible && (
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+        >
+          {text}
+        </motion.span>
+      )}
     </Link>
   );
 };
