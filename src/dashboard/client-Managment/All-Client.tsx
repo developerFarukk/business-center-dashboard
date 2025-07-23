@@ -1,3 +1,4 @@
+import ClientTable from "@/pages/client-components/ClientTable";
 import { useGetAllClientQuery } from "@/redux/features/clientManageApi";
 
 
@@ -6,7 +7,7 @@ import { useGetAllClientQuery } from "@/redux/features/clientManageApi";
 const AllClient = () => {
 
     const { data, isLoading, error } = useGetAllClientQuery(undefined);
-    console.log("Client Data:", data);
+    const  clientData =  data?.results
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -26,7 +27,7 @@ const AllClient = () => {
 
     return (
         <div>
-            <div> The Component is Start All-Client </div>
+            <ClientTable clientdatas={clientData} />
         </div>
     );
 };
