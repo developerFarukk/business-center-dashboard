@@ -11,4 +11,14 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // server: {
+  //   proxy: {
+      
+  //     "^/.*": {
+  //       target: "http://52.74.26.144:8008",
+  //       changeOrigin: true,
+  //       rewrite: (path) => path,
+  //     },
+  //   },
+  // },
 });
