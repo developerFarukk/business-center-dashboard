@@ -1,9 +1,9 @@
 
 
-import HeaderDropDown from "@/components/module/HeaderDropDown";
 import { cn } from "@/lib/utils";
 import type { TClient } from "@/types/clientType";
 import { motion } from "framer-motion";
+import CllientAction from "./CllientAction";
 
 interface TClients {
   clientdatas: TClient[];
@@ -95,7 +95,7 @@ const ClientTable = ({ clientdatas }: TClients) => {
                     {new Date(client.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 flex gap-2 justify-center items-center">
-                    <HeaderDropDown />
+                    <CllientAction />
                   </td>
                 </motion.tr>
               ))}
